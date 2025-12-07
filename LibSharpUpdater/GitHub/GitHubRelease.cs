@@ -1,0 +1,35 @@
+﻿using System;
+using System.Collections.Generic;
+using System.Text.Json.Serialization;
+
+namespace LibSharpUpdater.GitHub;
+
+public class GitHubRelease
+{
+    [JsonInclude] public GitHubAsset[] Assets { get; private set; } = [];
+    [JsonInclude] public string Name { get; private set; } = "";
+    [JsonInclude] public string TagName { get; private set; } = "";
+    [JsonInclude] public string Body { get; private set; } = "";
+    [JsonInclude] public DateTime UpdatedAt { get; private set; }
+
+    public virtual UpdateFile? ToUpdateFile(GitHubAssetFilter filter)
+    {
+        if (!FileVersion.TryParse(TagName, out var version)) return null;
+
+        List<UpdateDownloadEntry> downloads = new();
+        foreach(var asset in filter(this))
+        {
+            if (asset.BrowserDownloadUrl == null) continue;
+            downloads.Add(new(new(asset.BrowserDownloadUrl), asset.Size));
+        }
+
+        return new(Name, version!, UpdatedAt, downloads.ToArray(), Body);
+    }
+}
+public class GitHubAsset
+{
+    [JsonInclude] public string BrowserDownloadUrl { get; private set; } = "";
+    [JsonInclude] public string Name { get; private set; } = "";
+    [JsonInclude] public ulong Size { get; private set; }
+    [JsonInclude] public DateTime UpdatedAt { get; private set; }
+}

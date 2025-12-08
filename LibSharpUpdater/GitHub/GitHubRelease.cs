@@ -19,8 +19,7 @@ public class GitHubRelease
         List<UpdateDownloadEntry> downloads = new();
         foreach(var asset in filter(this))
         {
-            if (asset.BrowserDownloadUrl == null) continue;
-            downloads.Add(new(new(asset.BrowserDownloadUrl), asset.Size));
+            downloads.Add(new(new($"releases/assets/{asset.Id}", UriKind.Relative), asset.Size));
         }
 
         return new(Name, version!, UpdatedAt, downloads.ToArray(), Body);
@@ -28,7 +27,7 @@ public class GitHubRelease
 }
 public class GitHubAsset
 {
-    [JsonInclude] public string BrowserDownloadUrl { get; private set; } = "";
+    [JsonInclude] public ulong Id { get; private set; }
     [JsonInclude] public string Name { get; private set; } = "";
     [JsonInclude] public ulong Size { get; private set; }
     [JsonInclude] public DateTime UpdatedAt { get; private set; }

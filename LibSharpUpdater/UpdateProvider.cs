@@ -7,7 +7,7 @@ namespace LibSharpUpdater;
 public abstract class UpdateProvider : IDisposable
 {
     public abstract Task<UpdateFile[]> ProvideUpdateFilesAsync();
-    public abstract Task<Stream> DownloadAsync(UpdateDownloadEntry entry, ReportUpdateDownloadProgressHandler? progressHandler);
+    public abstract Task<UpdateDownloadResult> DownloadAsync(UpdateDownloadEntry entry, Stream stream, ReportUpdateDownloadProgressHandler? progressHandler);
 
     public virtual UpdateFile ProvideLatestVersion(UpdateFile[] files)
     {
@@ -35,3 +35,9 @@ public abstract class UpdateProvider : IDisposable
 }
 
 public delegate void ReportUpdateDownloadProgressHandler(UpdateDownloadEntry entry, ulong downloaded);
+public class UpdateDownloadResult(bool success, string? errorMessage, ulong downloaded)
+{
+    public bool Success { get; } = success;
+    public string? ErrorMessage { get; } = errorMessage;
+    public ulong Downloaded { get; } = downloaded;
+}

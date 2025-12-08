@@ -12,26 +12,29 @@ namespace LibSharpUpdater.GitHub;
 
 public class GitHubProvider : UpdateProvider
 {
-    public override async Task<Stream> DownloadAsync(UpdateDownloadEntry entry, ReportUpdateDownloadProgressHandler? progressHandler)
+    public override async Task<UpdateDownloadResult> DownloadAsync(UpdateDownloadEntry entry, Stream stream, ReportUpdateDownloadProgressHandler? progressHandler)
     {
         using var req = new HttpRequestMessage(HttpMethod.Get, entry.Uri);
-        using var res = await Http.SendAsync(req, HttpCompletionOption.ResponseHeadersRead);
+        req.Headers.Accept.Clear();
+        req.Headers.Accept.Add(new("application/octet-stream"));
 
-        MemoryStream ms = new();
+        using var res = await Http.SendAsync(req, HttpCompletionOption.ResponseHeadersRead);
+        if (!res.IsSuccessStatusCode) return new(false, await res.Content.ReadAsStringAsync(), 0);
 
         using var s = await res.Content.ReadAsStreamAsync();
         byte[] buffer = new byte[2048];
+        ulong downloaded = 0;
         while(true)
         {
             int br = await s.ReadAsync(buffer, 0, buffer.Length);
             if (br == 0) break;
 
-            ms.Write(buffer, 0, br);
-            progressHandler?.Invoke(entry, (ulong)ms.Length);
+            stream.Write(buffer, 0, br);
+            downloaded += (ulong)br;
+            progressHandler?.Invoke(entry, downloaded);
         }
 
-        ms.Position = 0;
-        return ms;
+        return new(true, null, downloaded);
     }
 
     public override async Task<UpdateFile[]> ProvideUpdateFilesAsync()

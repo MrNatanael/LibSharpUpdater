@@ -10,9 +10,9 @@ public abstract class UpdateDeployer : IDisposable
     public virtual void Dispose() {  }
 }
 
-public class UpdateResult(bool success, string? errorMessage, UpdateFile target)
+public class UpdateResult(bool success, string? errorMessage, UpdateDownloadEntry target)
 {
     public bool Success { get; } = success;
     public string? ErrorMessage { get; } = errorMessage;
-    public UpdateFile Target { get; } = target;
+    public UpdateDownloadEntry Target { get; } = target;
 }

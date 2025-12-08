@@ -3,6 +3,7 @@ using System.IO;
 using System.Threading.Tasks;
 
 namespace LibSharpUpdater;
+
 public class Updater(UpdateProvider provider, UpdateDeployer deployer, FileVersion currentVersion) : IDisposable
 {
     public virtual async Task<UpdateInfo> GetUpdateInfoAsync()
@@ -12,11 +13,12 @@ public class Updater(UpdateProvider provider, UpdateDeployer deployer, FileVersi
 
         return new(latest, all, CurrentVersion);
     }
-    public virtual Task<Stream> DownloadUpdateAsync(UpdateDownloadEntry entry, ReportUpdateDownloadProgressHandler? progressHandler) => Provider.DownloadAsync(entry, progressHandler);
-    public virtual async Task<UpdateResult> DownloadAndDeployAsync(UpdateDownloadEntry entry, ReportUpdateDownloadProgressHandler? progressHandler)
+    public virtual Task<UpdateDownloadResult> DownloadUpdateAsync(UpdateDownloadEntry entry, Stream stream, ReportUpdateDownloadProgressHandler? progressHandler) => Provider.DownloadAsync(entry, stream, progressHandler);
+    public virtual async Task<UpdateResult> DownloadAndDeployAsync(UpdateDownloadEntry entry, Stream stream, ReportUpdateDownloadProgressHandler? progressHandler)
     {
-        using var s = await DownloadUpdateAsync(entry, progressHandler);
-        return await Deployer.DeployAsync(entry, s);
+        var result = await DownloadUpdateAsync(entry, stream, progressHandler);
+        if (!result.Success) return new(false, result.ErrorMessage, entry);
+        return await Deployer.DeployAsync(entry, stream);
     }
     public virtual void Dispose()
     {
@@ -31,7 +33,7 @@ public class Updater(UpdateProvider provider, UpdateDeployer deployer, FileVersi
 
 public class UpdateInfo(UpdateFile lastestVersion, UpdateFile[] availableVersions, FileVersion currentVersion)
 {
-    public UpdateFile LastestVersion { get; } = lastestVersion;
+    public UpdateFile LatestVersion { get; } = lastestVersion;
     public UpdateFile[] AvailableVersions { get; } = availableVersions;
     public FileVersion CurrentVersion { get; } = currentVersion;
     public bool IsUpdateAvailable { get; } = currentVersion < lastestVersion.Version;

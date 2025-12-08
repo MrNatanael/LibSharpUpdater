@@ -79,6 +79,8 @@ public class FileVersion(int major, int minor, int patch = 0, string build = "")
 
     public static bool operator >(FileVersion a, FileVersion b) => a.IsGreatherThan(b);
     public static bool operator <(FileVersion a, FileVersion b) => !a.IsGreatherThan(b) && !a.Equals(b);
+    public static bool operator >=(FileVersion a, FileVersion b) => a.Equals(b) || a.IsGreatherThan(b);
+    public static bool operator <=(FileVersion a, FileVersion b) => !a.IsGreatherThan(b);
     public static bool operator ==(FileVersion a, FileVersion b) => a.Equals(b);
     public static bool operator !=(FileVersion a, FileVersion b) => !a.Equals(b);
 

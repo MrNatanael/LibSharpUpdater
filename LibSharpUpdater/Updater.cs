@@ -4,7 +4,7 @@ using System.Threading.Tasks;
 
 namespace LibSharpUpdater;
 
-public class Updater(UpdateProvider provider, UpdateDeployer deployer, FileVersion currentVersion) : IDisposable
+public class Updater(UpdateProvider provider, UpdateDeployer? deployer, FileVersion currentVersion) : IDisposable
 {
     public virtual async Task<UpdateInfo> GetUpdateInfoAsync()
     {
@@ -16,6 +16,8 @@ public class Updater(UpdateProvider provider, UpdateDeployer deployer, FileVersi
     public virtual Task<UpdateDownloadResult> DownloadUpdateAsync(UpdateDownloadEntry entry, Stream stream, ReportUpdateDownloadProgressHandler? progressHandler) => Provider.DownloadAsync(entry, stream, progressHandler);
     public virtual async Task<UpdateResult> DownloadAndDeployAsync(UpdateDownloadEntry entry, Stream stream, ReportUpdateDownloadProgressHandler? progressHandler)
     {
+        if (Deployer == null) return new(false, "Deployer not provided.", entry);
+
         var result = await DownloadUpdateAsync(entry, stream, progressHandler);
         if (!result.Success) return new(false, result.ErrorMessage, entry);
         return await Deployer.DeployAsync(entry, stream);
@@ -23,11 +25,11 @@ public class Updater(UpdateProvider provider, UpdateDeployer deployer, FileVersi
     public virtual void Dispose()
     {
         Provider.Dispose();
-        Deployer.Dispose();
+        Deployer?.Dispose();
     }
 
     public UpdateProvider Provider { get; } = provider;
-    public UpdateDeployer Deployer { get; } = deployer;
+    public UpdateDeployer? Deployer { get; } = deployer;
     public FileVersion CurrentVersion { get; } = currentVersion;
 }
 

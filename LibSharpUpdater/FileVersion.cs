@@ -6,7 +6,7 @@ using System.Text.RegularExpressions;
 
 namespace LibSharpUpdater;
 
-public class FileVersion(int major, int minor, int patch = 0, string build = "")
+public class FileVersion(int major, int minor, int patch = 0, string build = "") : IComparable<FileVersion>
 {
     public virtual bool IsGreatherThan(FileVersion other)
     {
@@ -44,6 +44,12 @@ public class FileVersion(int major, int minor, int patch = 0, string build = "")
         if(Build.Length > 0) sb.Append(Build);
 
         return sb.ToString();
+    }
+    public virtual int CompareTo(FileVersion other)
+    {
+        if (this < other) return -1;
+        else if(this == other) return 0;
+        else return 1;
     }
 
     public static bool TryParse(string? str, out FileVersion? version)

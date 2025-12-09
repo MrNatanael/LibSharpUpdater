@@ -37,9 +37,11 @@ public class GitHubProvider : UpdateProvider
         return new(true, null, downloaded);
     }
 
-    public override async Task<UpdateFile[]> ProvideUpdateFilesAsync()
+    public override async Task<UpdateFile[]> ProvideUpdateFilesAsync() => await ProvideUpdateFilesAsync(0);
+    public virtual async Task<UpdateFile[]> ProvideUpdateFilesAsync(int maximum)
     {
-        using var res = await Http.GetAsync("releases");
+        using var res = await Http.GetAsync(maximum <= 0 ? "releases" : $"releases?per_page={maximum}");
+
         GitHubRelease[]? releases;
         try
         {
@@ -55,7 +57,7 @@ public class GitHubProvider : UpdateProvider
         List<UpdateFile> result = new();
         foreach (var r in releases)
         {
-            var file = r.ToUpdateFile(AssetFilter);
+            var file = await ProvideUpdateFileAsync(r);
             if (file is null || file.Downloads.Length == 0) continue;
 
             result.Add(file);
@@ -65,6 +67,8 @@ public class GitHubProvider : UpdateProvider
     }
 
     public override void Dispose() => Http.Dispose();
+
+    protected virtual Task<UpdateFile?> ProvideUpdateFileAsync(GitHubRelease release) => Task.FromResult(release.ToUpdateFile(AssetFilter));
 
     public GitHubProvider(GitHubRepository repository, string token, GitHubAssetFilter filter)
     {
@@ -79,13 +83,13 @@ public class GitHubProvider : UpdateProvider
     }
 
     public GitHubRepository Repository { get; }
-    private HttpClient Http { get; } = new(new HttpClientHandler()
+    protected HttpClient Http { get; } = new(new HttpClientHandler()
     {
         AllowAutoRedirect = true,
         MaxAutomaticRedirections = 50
     });
     public GitHubAssetFilter AssetFilter { get; }
-    private static JsonSerializerOptions JsonOptions { get; } = new()
+    protected static JsonSerializerOptions JsonOptions { get; } = new()
     {
         PropertyNamingPolicy = JsonNamingPolicy.SnakeCaseLower,
     };

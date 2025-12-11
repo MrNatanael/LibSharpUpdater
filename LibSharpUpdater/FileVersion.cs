@@ -8,7 +8,7 @@ namespace LibSharpUpdater;
 
 public class FileVersion(int major, int minor, int patch = 0, string build = "") : IComparable<FileVersion>
 {
-    public virtual bool IsGreatherThan(FileVersion other)
+    public virtual bool IsGreaterThan(FileVersion other)
     {
         if (Major > other.Major || Minor > other.Minor || Patch > other.Patch) return true;
         if (!BuildTypeIntMap.TryGetValue(this.Build, out var thisBuild))

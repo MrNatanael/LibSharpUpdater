@@ -10,14 +10,22 @@ public class FileVersion(int major, int minor, int patch = 0, string build = "")
 {
     public virtual bool IsGreaterThan(FileVersion other)
     {
-        if (Major > other.Major || Minor > other.Minor || Patch > other.Patch) return true;
-        if (!BuildTypeIntMap.TryGetValue(this.Build, out var thisBuild))
+        if (Major != other.Major)
+            return Major > other.Major;
+
+        if (Minor != other.Minor)
+            return Minor > other.Minor;
+
+        if (Patch != other.Patch)
+            return Patch > other.Patch;
+
+        if (!BuildTypeIntMap.TryGetValue(Build, out var a))
             throw new NotSupportedException($"Build type \"{Build}\" is not supported.");
 
-        if (!BuildTypeIntMap.TryGetValue(this.Build, out var otherBuild))
+        if (!BuildTypeIntMap.TryGetValue(other.Build, out var b))
             throw new NotSupportedException($"Build type \"{other.Build}\" is not supported.");
 
-        return thisBuild > otherBuild;
+        return a > b;
     }
     public override bool Equals(object obj)
     {
@@ -83,10 +91,10 @@ public class FileVersion(int major, int minor, int patch = 0, string build = "")
         return version!;
     }
 
-    public static bool operator >(FileVersion a, FileVersion b) => a.IsGreatherThan(b);
-    public static bool operator <(FileVersion a, FileVersion b) => !a.IsGreatherThan(b) && !a.Equals(b);
-    public static bool operator >=(FileVersion a, FileVersion b) => a.Equals(b) || a.IsGreatherThan(b);
-    public static bool operator <=(FileVersion a, FileVersion b) => !a.IsGreatherThan(b);
+    public static bool operator >(FileVersion a, FileVersion b) => a.IsGreaterThan(b);
+    public static bool operator <(FileVersion a, FileVersion b) => !a.IsGreaterThan(b) && !a.Equals(b);
+    public static bool operator >=(FileVersion a, FileVersion b) => a.Equals(b) || a.IsGreaterThan(b);
+    public static bool operator <=(FileVersion a, FileVersion b) => !a.IsGreaterThan(b);
     public static bool operator ==(FileVersion a, FileVersion b) => a.Equals(b);
     public static bool operator !=(FileVersion a, FileVersion b) => !a.Equals(b);
 

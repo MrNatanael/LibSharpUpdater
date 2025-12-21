@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Text.Json.Serialization;
 
@@ -11,6 +11,7 @@ public class GitHubRelease
     [JsonInclude] public string TagName { get; private set; } = "";
     [JsonInclude] public string Body { get; private set; } = "";
     [JsonInclude] public DateTime UpdatedAt { get; private set; }
+    [JsonInclude] public bool Prerelease { get; private set; }
 
     public virtual UpdateFile? ToUpdateFile(GitHubAssetFilter filter)
     {

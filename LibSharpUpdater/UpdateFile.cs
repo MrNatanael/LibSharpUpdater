@@ -1,14 +1,15 @@
-﻿using System;
+using System;
 
 namespace LibSharpUpdater;
 
-public class UpdateFile(string name, FileVersion version, DateTime? date, UpdateDownloadEntry[] downloads, string? changelogs)
+public class UpdateFile(string name, FileVersion version, DateTime? date, UpdateDownloadEntry[] downloads, string? changelogs, bool prerelease = false)
 {
     public string Name { get; } = name;
     public FileVersion Version { get; } = version;
     public DateTime? Date { get; } = date;
     public UpdateDownloadEntry[] Downloads { get; } = downloads;
     public string? Changelogs { get; } = changelogs;
+    public bool Prerelease { get; } = prerelease;
 }
 
 public record UpdateDownloadEntry(Uri Uri, ulong? Size)

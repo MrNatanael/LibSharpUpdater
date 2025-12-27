@@ -23,7 +23,7 @@ public class GitHubRelease
             downloads.Add(new(new($"releases/assets/{asset.Id}", UriKind.Relative), asset.Size));
         }
 
-        return new(Name, version!, UpdatedAt, downloads.ToArray(), Body);
+        return new(Name, version!, UpdatedAt, downloads.ToArray(), Body, Prerelease);
     }
 }
 public class GitHubAsset

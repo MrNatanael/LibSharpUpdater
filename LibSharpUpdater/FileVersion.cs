@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Text;
@@ -107,10 +107,10 @@ public class FileVersion(int major, int minor, int patch = 0, string build = "")
     public static Regex DefaultVersionRegex { get; } = new(@"^v?(\d{1,3})\.(\d{1,3})(\.(\d{1,5}))?(\w+)?$");
     public static ReadOnlyDictionary<string, int> BuildTypeIntMap { get; } = new(new Dictionary<string, int>
     {
-        { "", 0 },
-        { "public", 0 },
+        { "", 3 },
+        { "public", 2 },
         { "rc", 1 },
-        { "alpha", 2 }
+        { "alpha", 0 }
     });
 }
 
